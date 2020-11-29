@@ -7,12 +7,13 @@ import axios from 'axios'
 
 export const moduleName = 'currency'
 const prefix = moduleName
-
+/*ACTIONS  */
 export const INIT_CURRENCY_TITLE_LIST = `${prefix}/INIT_CURRENCY_TITLE_LIST`
 export const FETCH_NEW_CURRENCY_LIST = `${prefix}/FETCH_NEW_CURRENCY_LIST`
 export const SAVE_ACTIVE_CURRENCY = `${prefix}/SAVE_ACTIVE_CURRENCY`
 export const REMOVE_SAVED_CURRENCY = `${prefix}/REMOVE_SAVED_CURRENCY`
 export const LOADING_DATA_SUCCESS = `${prefix}/LOADING_DATA_SUCCESS`
+export const FETCH_ERRORS = `${prefix}/FETCH_ERRORS`
 
 /**
  * Reducer
@@ -22,7 +23,8 @@ export const ReducerRecord = {
   currencyList: null,
   activeCurrencies: null,
   saveCurrencies: [],
-  isLoading: false
+  isLoading: false,
+  error: ''
 }
 
 export default function reducer(state = ReducerRecord, action) {
@@ -45,6 +47,10 @@ export default function reducer(state = ReducerRecord, action) {
       return Object.assign({}, state, {
         isLoading: payload
       })
+    case FETCH_ERRORS:
+      return Object.assign({}, state, {
+        error: payload
+      })
     default:
       return state
   }
@@ -59,6 +65,7 @@ export const currencyListSelector = createSelector(stateSelector, state => state
 export const isLoadingSelector = createSelector(stateSelector, state => state.isLoading)
 export const activeCurrenciesSelector = createSelector(stateSelector, state => state.activeCurrencies)
 export const saveCurrenciesSelector = createSelector(stateSelector, state => state.saveCurrencies)
+export const errorSelector = createSelector(stateSelector, state => state.error)
 
 /**
  * Redux thunks
@@ -107,5 +114,9 @@ export const initCurrencyList = () => (dispatch, getState) => {
       type: INIT_CURRENCY_TITLE_LIST,
       payload: listCurrencies
     })
-  })
+  }).catch((error)=>{dispatch({
+    type: FETCH_ERRORS,
+    payload: JSON.stringify(error)
+  })})
+
 }
